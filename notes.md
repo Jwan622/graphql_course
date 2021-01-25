@@ -54,4 +54,4 @@ notice the top level response key is `data`
 
 
 - graphql can play well with an express server. we can use `apollo-server-express` package.
-- the type defs specifies what the resolver returns. If the typeDef schema specifies that ta resolver returns an Int, the resolver cannot return "hello world!".
+- the type defs specifies what the resolver returns. If the typeDef schema specifies that ta resolver returns an Int, the resolver cannot return "hello world!". The typedef tells us what the client can ask of the graphql server.
