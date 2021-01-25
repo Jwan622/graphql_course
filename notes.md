@@ -51,3 +51,7 @@ notice the top level response key is `data`
 - response is a json object from apollo server.
 - since graphql clients just makes requests over http, we can call graphql server from any language as long as it provides http requests.
 - if a function is an async function, it returns a promise and so you need to resolve it using `.then`
+
+
+- graphql can play well with an express server. we can use `apollo-server-express` package.
+- the type defs specifies what the resolver returns. If the typeDef schema specifies that ta resolver returns an Int, the resolver cannot return "hello world!".
