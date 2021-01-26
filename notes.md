@@ -55,3 +55,71 @@ notice the top level response key is `data`
 
 - graphql can play well with an express server. we can use `apollo-server-express` package.
 - the type defs specifies what the resolver returns. If the typeDef schema specifies that ta resolver returns an Int, the resolver cannot return "hello world!". The typedef tells us what the client can ask of the graphql server.
+
+# module 2
+- you can remove a field and the graphql server handles this. helps prevent client from overfetching. Client can specify fields and the graphql engine takes care of this for us.
+
+```text
+{
+  jobs {
+    id
+    title
+    description
+  }
+}
+```
+
+is equiv to
+
+```text
+query {
+  jobs {
+    id
+    title
+    description
+  }
+}
+```
+
+- you don't need to specify query at the beginning. this is a nested query, query is teh default root object.
+
+- this is how to make associations:
+
+```text
+type Company {
+    id: ID!
+    name: String
+    description: String
+}
+
+type Job {
+    id: ID! # string, not human readable
+    title: String
+    company: Company # you can associate using a custom type
+    description: String
+}
+```
+- each resolver has arguments, the first argument is the parent object. we can use this to resolve associations. if you're finding the association, the parent will be the object that stores the foreign key.
+- the server will resolve the object request and if it comes across an association, it will resolve that too.
+  
+if you want to query a single job, it needs arguments. write this in typedefs:
+
+```text
+type Query {
+     ...
+    job(id: ID!): Job
+}
+```
+
+you would then query the server like this, using double quotes for args:
+
+```text
+{
+  job(id: "rJKAbDd_z") {
+    id
+    title
+  }
+}
+```
+
+- second argument to resolver is args from the client.
