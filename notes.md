@@ -123,3 +123,8 @@ you would then query the server like this, using double quotes for args:
 ```
 
 - second argument to resolver is args from the client.
+
+
+
+# module 3
+- you modify data with mutations
