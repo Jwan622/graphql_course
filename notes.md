@@ -128,3 +128,169 @@ you would then query the server like this, using double quotes for args:
 
 # module 3
 - you modify data with mutations
+- resolvers are no different, but the schema type is different.. it's a mutation.
+
+this is the mutation:
+```text
+type Mutation {
+    createJob(title: String, description: String, companyId: ID): ID
+}
+```
+the above only returns an ID but it should probably return more info for the client.
+to return more info, you can do:
+
+```text
+type Mutation {
+    createJob(title: String, description: String, companyId: ID): Job
+}
+```
+this is the resolver:
+
+```text
+const Mutation = {
+  createJob: (root, {companyId, title, description}) => {
+    const id = db.jobs.create({companyId, title, description})
+    
+    return db.jobs.get(id);
+  }
+}
+```
+
+the above returns a Job object with multiple fields.
+
+when quereying from a client, you can write this:
+
+```text
+mutation {
+  createJob(
+    companyId: "SJV0-wdOM111111111111",
+    title: "some new job",
+    description:"jeff wan desc"
+  ) {
+    id
+    title
+    company {
+      id
+      name
+    }
+  }
+}
+```
+
+and you get back:
+
+```text
+{
+  "data": {
+    "createJob": {
+      "id": "H1O2Kf-g_",
+      "title": "some new job",
+      "company": null
+    }
+  }
+}
+```
+
+and thet resulting data:
+
+```text
+{
+  "data": {
+    "createJob": {
+      "id": "Bynf5GWgu",
+      "title": "some new job",
+      "company": null
+    }
+  }
+}
+```
+
+you can also alias so that the top key is changed:
+
+```text
+mutation {
+  job: createJob(
+    companyId: "SJV0-wdOM111111111111",
+    title: "some new job",
+    description:"jeff wan desc"
+  ) {
+    id
+    title
+    company {
+      id
+      name
+    }
+  }
+}
+```
+
+responseE:
+
+```text
+{
+  "data": {
+    "job": {
+      "id": "S19Qqf-l_",
+      "title": "some new job",
+      "company": null
+    }
+  }
+}
+```
+
+- by nesting queries you can get th ejob, and hte company id and name. So instead of making 1 request we can make 2. This is the Job schema and as you can see, if anything returns a Job, you can ask for the relate company as well:
+
+```text
+type Job {
+    id: ID! # string, not human readable
+    title: String
+    company: Company # you can associate using a custom type
+    description: String
+}
+```
+in the above query for the mutation... you can see it returns the job title and company id and name so we can just consolidate this to one request instead of two. That's great!
+- quick note, the types are output types, they describe what can be returned from the server. You cannot type inputs or variables as types unfortuntaely.But you can define `input` types by simply using `input` So you can do this:
+
+```text
+type Mutation {
+    createJob(input: createJobInput): Job
+}
+```
+and the input type:
+
+```text
+type Mutation {
+    createJob(input: createJobInput): Job
+}
+
+```
+
+so our query can now look like this:
+
+```text
+
+```
+
+the consequence: a single argument for each mutation instead of several.
+
+a key thing about resolves is this if the schema says a query returns a Job, this tells graphql how to resolve a field on the Job, in this case company:
+
+```text
+
+const Job = {
+  company: (job) => {
+    return db.companies.get(job.companyId)
+  }
+}
+```
+
+and the Job schema does indeed involve a company:
+
+```text
+type Job {
+    id: ID! # string, not human readable
+    title: String
+    company: Company # you can associate using a custom type
+    description: String
+}
+```
